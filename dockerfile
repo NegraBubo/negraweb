@@ -10,6 +10,9 @@ RUN apt-get install -y --no-install-recommends \
     wget \
     zlib1g-dev
 
+RUN apt-get install -y libmysqlcppconn-dev
+
+
 # get and build wt4
 WORKDIR /root
 RUN wget https://github.com/emweb/wt/archive/4.0.4.tar.gz
@@ -19,8 +22,9 @@ RUN cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF ..
 RUN make -j2 install
 RUN ldconfig
 
+
 # build our app
-WORKDIR /root/myweb
-ADD . /root/myweb
-RUN g++ -O2 -o myweb myweb.cpp -lwthttp -lwt
-CMD /root/myweb/myweb --docroot . --http-address 0.0.0.0 --http-port $PORT
+WORKDIR /root/main
+ADD . /root/main
+RUN g++ -O2 -o main Database/DBConnect.cpp main.cpp -lwthttp -lwt  -L/usr/lib -lmysqlcppconn
+CMD /root/main/main --docroot . --http-address 0.0.0.0 --http-port $PORT 
